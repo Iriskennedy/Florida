@@ -18,4 +18,4 @@ abundanceDepth <- ggplot(depthData, aes(depth, seedAbundance, na.rm=TRUE))+
   ggtitle("Bald 59 Seed Abundance at Different Depths")+ xlab("Depth (cm)")+ylab("Seed Abundance")
 
 ##how to determine if this is significant?
-## how to display n=11?
+## how to display n=11? TEST
