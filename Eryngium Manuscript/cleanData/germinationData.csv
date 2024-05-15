@@ -1,0 +1,39 @@
+site,distance,grouping,replicate,code,date initiated,seeds,germ.0418,germ.0419,germ.0420,germ.0424,germ0428,germ0502,germ.0515,germ.0524,germ.0602,pre.germ,total.germ,seeds not counted,comments
+Bald 1,1,A,1,B1-1-A,13-Apr-23,25,0,NA,0,0,1,1,1,0,0,0,3,,"0515 germinant had been germinated for a while (long radicle, green tissue)"
+Bald 1,1,B,1,B1-1-B1,13-Apr-23,25,0,NA,0,1,0,0,0,0,0,0,1,1 seed lost before experiment,
+Bald 1,1,B,2,B1-1-B2,13-Apr-23,26,0,NA,0,0,1,0,0,0,0,0,1,,
+Bald 1,1,C,1,B1-1-C,13-Apr-23,6,1,NA,0,0,1,0,0,0,0,0,2,,
+Bald 1,1,D,1,B1-1-D,13-Apr-23,6,0,NA,0,0,1,0,0,0,0,0,1,,one seed seems to just be a shell (still included)
+Bald 1,1,E,1,B1-1-E,13-Apr-23,6,0,NA,1,0,0,0,0,0,0,0,1,,
+Bald 1,1,F,1,B1-1-F,13-Apr-23,3,0,NA,0,0,0,0,0,0,0,0,0,,
+Bald 1,2,A,1,B1-2-A1,13-Apr-23,19,0,NA,1,1,5,1,1,0,0,0,9,,"0515 germinant had been germinated for a while (long radicle, green tissue)"
+Bald 1,2,A,2,B1-2-A2,13-Apr-23,19,0,NA,0,2,0,0,0,0,0,0,2,,
+Bald 1,2,B,1,B1-2-B1,13-Apr-23,20,0,NA,0,0,0,0,0,0,0,0,0,,
+Bald 1,2,B,2,B1-2-B2,13-Apr-23,20,0,NA,0,0,1,1,0,0,0,0,2,,lots of hollowed out shell type seeds
+Bald 1,2,B,3,B1-2-B3,13-Apr-23,20,0,NA,0,1,2,1,0,0,0,0,4,,
+Bald 1,2,B,4,B1-2-B4,13-Apr-23,22,0,NA,0,0,0,0,0,0,0,0,0,,
+Bald 1,2,C,1,B1-2-C,13-Apr-23,5,0,NA,0,0,1,0,0,0,0,0,1,,
+Bald 1,2,D,1,B1-2-D,13-Apr-23,3,0,NA,0,0,1,1,0,0,0,0,2,,
+Bald 1,2,E,1,B1-2-E,13-Apr-23,6,2,NA,0,0,0,1,0,0,0,0,3,,0502 germinant was sickly
+Bald 1,2,F,1,B1-2-F,13-Apr-23,8,1,NA,0,0,1,0,0,0,0,1,3,,"really appears one seed in the t29 envelope had germinated before the experiment, likely in the envelope (included in total 8 because its viability is still relevant); long dried up radicle attached to seed, fell off, broken part of tip of seed; still put in dish with others just in case"
+Bald 1,2,G,1,B1-2-G,13-Apr-23,2,0,NA,0,0,0,0,0,0,0,0,0,,
+Bald 1,3,A,1,B1-3-A1,13-Apr-23,21,0,NA,0,1,2,0,0,0,0,0,3,,
+Bald 1,3,A,2,B1-3-A2,13-Apr-23,21,0,NA,0,1,0,1,0,0,0,0,2,,
+Bald 1,3,A,3,B1-3-A3,13-Apr-23,22,0,NA,0,1,0,2,1,0,0,0,4,,"0515 germinant had been germinated for a while (long radicle, green tissue)"
+Bald 1,3,B,1,B1-3-B1,13-Apr-23,26,0,NA,2,3,1,0,1,0,0,0,7,,"0515 germinant had been germinated for a while (long radicle, green tissue)"
+Bald 1,3,B,2,B1-3-B2,13-Apr-23,25,1,NA,1,1,0,2,0,0,0,0,5,1 seed was just a fragment,0502 germinants were sickly
+Bald 1,3,C,1,B1-3-C,13-Apr-23,3,0,NA,0,1,0,0,0,0,0,0,1,,
+Bald 1,3,D,1,B1-3-D,13-Apr-23,3,0,NA,0,1,0,0,0,0,0,0,1,,
+Bald 1,3,E,1,B1-3-E,13-Apr-23,5,1,NA,0,1,0,0,0,0,0,0,2,,at least one seed just a shell (still included)
+Bald 1,3,F,1,B1-3-F1,13-Apr-23,19,1,NA,0,1,1,0,0,0,0,0,3,,
+Bald 1,3,F,2,B1-3-F2,13-Apr-23,19,0,NA,1,3,1,0,0,0,0,0,5,,
+Bald 1,3,G,1,B1-3-G,13-Apr-23,4,0,NA,1,1,0,0,0,0,0,0,2,,one seed maybe just a shell
+Bald 1,4,A,1,B1-4-A,13-Apr-23,6,0,NA,0,1,1,0,0,0,0,0,2,,
+Bald 1,4,B,1,B1-4-B1,13-Apr-23,28,0,NA,0,1,1,0,0,0,0,0,2,,
+Bald 1,4,B,2,B1-4-B2,13-Apr-23,27,0,NA,0,7,2,2,0,0,0,0,11,1 seed broke into fragments before experiment,
+Bald 1,4,C,1,B1-4-C,13-Apr-23,1,0,NA,0,0,0,0,0,0,0,0,0,,
+Bald 1,4,D,1,B1-4-D,13-Apr-23,1,0,NA,0,0,0,0,0,0,0,0,0,,
+Bald 59,1,,1,B59-1,13-Apr-23,4,0,NA,0,0,0,0,0,0,0,0,0,,
+Bald 59,2,,1,B59-2,13-Apr-23,13,1,NA,0,0,0,0,0,0,0,1,2,,"one seed germinated before the experiment, likely in the envelope (radicle seen attached to seed; included in total 13 because its viability is still relevant); still put in dish just in case"
+Bald 59,3,,1,B59-3,13-Apr-23,11,2,1,1,3,0,0,0,0,0,0,7,,
+Bald 62,1,,1,B62-1,13-Apr-23,11,0,NA,0,1,0,0,0,0,0,0,1,,"seeds brown, appearing unhealthy"

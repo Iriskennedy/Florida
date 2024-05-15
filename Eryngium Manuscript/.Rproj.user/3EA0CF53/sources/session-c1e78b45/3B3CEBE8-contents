@@ -1,0 +1,142 @@
+## Preparing Intermediate Scale Drivers point shapefile for addition to WRI forest-loss map
+# started by Iris Kennedy, April 14, 2024
+
+library(sf)
+library(terra)
+library(dplyr)
+library(ggspatial)
+library(ggplot2)
+library(tidyverse)
+
+#local path:
+smallScaleLoss <- read.csv("C:/Users/irisa/Documents/GitHub/global_biomass_loss_review/data/intermediate_scale_losses/intermediate_scale_losses.csv") #loading intermediate scale loss in from github
+
+# smallScaleLoss <- read.csv("/Users/krystalbagnaschi/Documents/global_biomass_loss_review/data/intermediate_scale_losses/intermediate_scale_losses.csv")
+
+#filters to just useable records:
+smallScaleLoss <- subset(smallScaleLoss, 
+                         review.complete == "yes" & 
+                           proximate.driver.1 != "" & 
+                           !(exclude %in% c("1")) & 
+                           (event.end >= 2000 | event.start >= 2000) &
+                           !(multi.site %in% 1))
+
+
+nrow(smallScaleLoss)#1261
+smallScaleLoss$lat <- as.numeric(smallScaleLoss$lat)
+smallScaleLoss$long <- as.numeric(smallScaleLoss$long)
+
+which(is.na(as.numeric(smallScaleLoss$long)))#identifies rows missing longitude
+#1011
+#complete cases checks whether each row has NA values, so it is looking at lat long columns then indexing whole SSL to return rows where that is true
+smallScaleLoss <- smallScaleLoss[complete.cases(smallScaleLoss[c("lat","long")]),]
+# smallScaleLoss <- smallScaleLoss[-c(841, 843, 1111, 1119, 1127, 1135, 1136, 1137, 1140, 1141, 1154, 1226, 1227, 1228, 1229, 1230, 1231, 1246, 1247, 1248),]#filters out rows missing longitude, remember indexing does data set[rows, columns] negative means take them out
+
+which(is.na(as.numeric(smallScaleLoss$lat)))#identifies rows missing latitude
+
+sfSmallScaleData <- st_as_sf(smallScaleLoss, coords= c("long", "lat"), crs = 4326)#turns into an sf object for sf package
+
+#string manpulation to make driver column
+
+categorize_driver <- function(driver) {
+  driver <- tolower(driver)
+  if (grepl("air pollution", driver)) {
+    return("air pollution")
+  } else if (grepl("drought|heat", driver)) {
+    return("drought")
+  } else if (grepl("storm|wind", driver)) {
+    return("storms")
+  } else if (grepl("insect|pathogen", driver)) {
+    return("insects and pathogens")
+  } else if (grepl("wildfire", driver)) {
+    return("wildfire")
+  } else if (grepl("fuelwood", driver)) {
+    return("fuelwood harvest")
+  } else if (grepl("selective logging", driver)) {
+    return("selective logging")
+  } else if (grepl("forestry", driver)) {
+    return("clear-cut logging")
+  } else if (grepl("agriculture|pasture|mining|extraction|livestock", driver)) {
+    return("commodity-driven deforestation")
+  } else if (grepl("shifting cultivation|smallholder clearing", driver)) {
+    return("smallholder clearings")
+  } else if (grepl("urban expansion", driver)) {
+    return("urban expansion")
+  } else if (grepl("permafrost", driver)) {
+    return("permafrost thaw")
+  } else {
+    return("other")
+  }
+}
+
+## Adding a new column with the grepled drivers called simplifiedCategories
+smallScaleLoss <- smallScaleLoss %>%
+  mutate(simplifiedCategories = sapply(proximate.driver.1, categorize_driver))
+
+## write new function categorize_wri to put points into 4 wri categories
+categorize_wri <- function(simplifiedCategories) {
+  simplifiedCategories <- tolower(simplifiedCategories)
+  if (grepl("clear-cut logging|selective logging", simplifiedCategories)) {
+    return("logging")
+  } else if (grepl("wildfire", simplifiedCategories)) {
+    return("wildfire")
+  } else if (grepl("drought", simplifiedCategories)) {
+    return("drought")
+  } else if (grepl("storms", simplifiedCategories)) {
+    return("storms")
+  } else if (grepl("insects and pathogens", simplifiedCategories)) {
+    return("insects and pathogens")
+  } else if (grepl("fuelwood harvest", simplifiedCategories)) {
+    return("fuelwood harvest")
+  } else if (grepl("commodity-driven deforestation", simplifiedCategories)) {
+    return("non-timber commodity production")
+  } else if (grepl("smallholder clearings", simplifiedCategories)) {
+    return("subsistence agriculture")
+  } else if (grepl("urban expansion", simplifiedCategories)) {
+    return("urban expansion")
+  } else if (grepl("permafrost", simplifiedCategories)) {
+    return("permafrost thaw")
+  } else {
+    return("other")
+  }
+}
+
+## add the new column with the five categories of the WRI map and other
+smallScaleLoss <- smallScaleLoss %>%
+  mutate(wriGroup = sapply(simplifiedCategories, categorize_wri))
+#checking if we had urbanization records
+subset1 <- subset(smallScaleLoss, simplifiedCategories=="urban")
+
+## importing a shapefile with the correct projection so I can use it for my shapefile
+finalShapefile <- st_read("C:\\Users\\irisa\\Documents\\GitHub\\global_biomass_loss_review\\data\\spatial\\continents_EE.shp")
+# finalShapefile <- st_read("/Users/krystalbagnaschi/Documents/global_biomass_loss_review/data/spatial/continents_EE.shp")
+
+crs_info <- crs(finalShapefile)#this is the crs object to use, tells me crs of raster
+print(crs_info)
+
+# turning small scale loss into an sf object
+sfSmallScaleMap <- st_as_sf(smallScaleLoss, coords= c("long", "lat"), crs = 4326)
+
+#CREATING THE DATA TO ACTUALLY DISPLAY IN THE MAP#
+#transform it with crs_info to make it an equal earth projection
+
+dataMap<-st_transform(sfSmallScaleMap, crs_info) #transforming my small scale data into mappable data with the correct projection, the same projection as the finalShapefile
+dataMap_subset <- dataMap %>%
+  select(wriGroup, geometry)
+
+# Transforming the small scale data into the correct projection
+dataMap <- st_transform(sfSmallScaleMap, crs_info)
+
+# Selecting specific columns (including geometry) using `$` operator
+dataMap_subset <- dataMap[c("wriGroup", "geometry")]
+
+#exporting shapefile
+file_path <- "C:/Users/irisa/Documents/Smithsonian/biomassLoss/intermediateWri2.shp"
+# file_path <-"/Users/krystalbagnaschi/Documents/global_biomass_loss_review/data/spatial/intermediateWri2.shp"
+#this exports the shapefile with name and location specified in filepath, overwrite=TRUE should allow it to overwrite the one saved previously
+st_write(dataMap_subset, dsn=file_path, delete_layer =TRUE, overwrite=TRUE)
+
+#save as R object because the shapefile is not working
+save(dataMap_subset, file = "C:/Users/irisa/Documents/GitHub/global_biomass_loss_review/data/spatial/intermediateWri2.rdata")
+# save(dataMap_subset, file = "/Users/krystalbagnaschi/Documents/global_biomass_loss_review/data/spatial/intermediateWri2.rdata")
+
