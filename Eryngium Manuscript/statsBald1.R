@@ -28,7 +28,7 @@ boxplotPoisson <- boxplot(log(fig1Data$seedAbundance+1)~fig1Data$roadDistance)
 
 ##post hoc test
 
-library(emmeans) ##emmeans gives you the back transformed means that you should use
+##emmeans gives you the back transformed means that you should use
 
 emmeans(bald1Poisson, list(pairwise ~ roadDistance), adjust="tukey",type="response")
 
