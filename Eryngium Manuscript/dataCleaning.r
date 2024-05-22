@@ -18,3 +18,8 @@ fig1Data <- fig1Data <- subset(fig1Data, patchDistance!=130)
 
 #exporting the clean data:
 write.csv(fig1Data, file = "cleanData\\roadData.csv", row.names = FALSE)
+
+#cleaning rosemary bald data, it actually looks fine
+
+scrubData <- read_csv("rosemaryBaldsCombined.csv")
+view(scrubData)
