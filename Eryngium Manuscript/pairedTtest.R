@@ -18,8 +18,6 @@ newdf <- pivot_wider(scrubSub, names_from = nearFar, values_from = seedAbundance
 
 t.test(newdf$N, newdf$F)
 
-t.test(scrubData$seedAbundance, fig1Data$seedAbundance)
-
 #data:  newdf$N and newdf$F
 #t = -0.43683, df = 45.143, p-value = 0.6643
 
