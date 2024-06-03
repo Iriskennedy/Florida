@@ -110,6 +110,9 @@ abundanceAlive <- ggplot(temp2, aes(x=alive22, y=seedAbundance))+
   geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
   ggtitle("Seed Abundance vs Number of Plants")+xlab("Number of Plants")+ylab("Seed Abundance")
 
+cor.test(temp2$alive22, temp2$seedAbundance)
+#correlation of 0.349945 between living plants and seeds
+
 ##making graph of seedlings vs seed abundance
 #poly(seedAbundance,2) helps get rid of colinearity issue
 bestfit<- glm(seedlings22~poly(seedAbundance,2), data = flwrFig1Data, family=poisson())
