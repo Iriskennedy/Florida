@@ -39,6 +39,7 @@ germinationData$habitat <- c("Bald 1"="road", "Bald 59" = "scrub", "Bald 62"="sc
 
 model <- glm(formula = cbind(total.germ, seeds-total.germ)~habitat, family = binomial, data=germinationData)
 summary(model)
+#no significant difference between road and scrub seeds
 
 ## glm(formula = cbind(Galumna, totalabund - Galumna) ~ Topo + WatrCont, 
 ##     family = binomial, data = mites)
