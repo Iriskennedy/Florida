@@ -1,6 +1,7 @@
 ##making seed germination figure
 library(tidyverse)
 library(ggplot2)
+library(stats)
 
 germinationData <- read.csv("C:/Users/irisa/Documents/Archbold/germinationData/germinationData.csv")
 
@@ -24,9 +25,21 @@ bald62SuccessRate <- (bald62TotalGerm/bald62TotalSeeds)*100 #9
 ##Creating the data frame, calling it germinationAnalysis
 
 bald <- c("1", "59", "62")
+habitat <- c("road", "scrub", "scrub")
 TotalSeeds <- c(bald1TotalSeeds, bald59TotalSeeds, bald62TotalSeeds)
 TotalGerminated <- c(bald1TotalGerminated, bald59TotalGerminated, bald62TotalGerm)
 successRate <- c(bald1SucessRate,bald59SuccessRate, bald62SuccessRate)
 
-germinationAnalysis <- data.frame(bald, TotalSeeds, TotalGerminated, successRate)
+germinationAnalysis <- data.frame(bald, TotalSeeds, TotalGerminated, successRate, habitat)
 view(germinationAnalysis)
+
+#statistics
+
+germinationData$habitat <- c("Bald 1"="road", "Bald 59" = "scrub", "Bald 62"="scrub")[germinationData$site]
+
+model <- glm(formula = cbind(total.germ, seeds-total.germ)~habitat, family = binomial, data=germinationData)
+summary(model)
+
+## glm(formula = cbind(Galumna, totalabund - Galumna) ~ Topo + WatrCont, 
+##     family = binomial, data = mites)
+
