@@ -2,6 +2,7 @@
 library(tidyverse)
 library(ggplot2)
 library(stats)
+library(car)
 
 germinationData <- read.csv("C:/Users/irisa/Documents/Archbold/germinationData/germinationData.csv")
 
@@ -37,8 +38,11 @@ view(germinationAnalysis)
 
 germinationData$habitat <- c("Bald 1"="road", "Bald 59" = "scrub", "Bald 62"="scrub")[germinationData$site]
 
+model <- glm(formula = cbind(total.germ, seeds-total.germ)~habitat + (1|code), family = binomial, data=germinationData)# trying to add random effect for site
+
 model <- glm(formula = cbind(total.germ, seeds-total.germ)~habitat, family = binomial, data=germinationData)
 summary(model)
+Anova(model)
 #no significant difference between road and scrub seeds
 
 ## glm(formula = cbind(Galumna, totalabund - Galumna) ~ Topo + WatrCont, 

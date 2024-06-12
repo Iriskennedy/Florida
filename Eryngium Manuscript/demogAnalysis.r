@@ -100,15 +100,21 @@ library(ggplot2)
 bestfit<- lm(flwrFig1Data$seedAbundance~flwrFig1Data$heads21)
 flwrAbundance <- ggplot(flwrFig1Data, aes(x=flwrFig1Data$heads21, y=flwrFig1Data$seedAbundance))+
   geom_point()+
-  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
-  ggtitle("Seed Abundance vs Number of Flowering Heads 2021")+xlab("Number of Flowering Heads")+ylab("Seed Abundance")
+  geom_smooth(method = "lm", se=TRUE, color="black", formula = y ~ x) +
+  ggtitle("Seed Abundance vs Number of Flowering Heads in 2021")+xlab("Number of Flowering Heads")+ylab("Seed Abundance")
+
+save_directory <- "graphs" #saving graph object
+saveRDS(object = flwrAbundance, file.path(save_directory, "flwrAbundance.rds"))
 
 ##doing this for all alive plants
 bestfitAlive<- lm(temp2$seedAbundance~temp2$alive22)
 abundanceAlive <- ggplot(temp2, aes(x=alive22, y=seedAbundance))+
   geom_point()+
-  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_smooth(method = "lm", se=TRUE, color="black", formula = y ~ x) +
   ggtitle("Seed Abundance vs Number of Plants")+xlab("Number of Plants")+ylab("Seed Abundance")
+
+Save_directory <- "graphs" #saving graph object
+saveRDS(object = abundanceAlive, file.path(save_directory, "abundanceAlive.rds"))
 
 cor.test(temp2$alive22, temp2$seedAbundance)
 #correlation of 0.349945 between living plants and seeds
@@ -165,11 +171,16 @@ newDF$fit <- predict(reducedModel, newdata=newDF,re.form=~0)
 abundanceSeedlings <- ggplot(flwrFig1Data, aes(x = seedAbundance, y = seedlings22)) +
   geom_point() +
  # geom_smooth(method = "glm", se = FALSE, color = "black", formula = y ~ x) +
-  geom_line(aes(y = fit), color = "blue") +  # Fitted values from bestfit
+  geom_line(aes(y = fit), color = "black") +  # Fitted values from bestfit
+  geom_ribbon(aes(ymin = fit - 1.96 * bestfit_predict$se.fit, ymax = fit + 1.96 * bestfit_predict$se.fit), 
+              alpha = 0.2, fill = "grey50") +  # 95% confidence interval
   #geom_line(aes(y = fitAdded), color = "red") +  # Fitted values from bestfitAdded
   #geom_line(aes(y=newDF$fit)) #fix this
   ggtitle("Seed Abundance vs Number of Seedlings in 2022") +
   xlab("Number of Seeds") + ylab("Seedlings")
+
+save_directory <- "graphs"
+saveRDS(object = abundanceSeedlings, file.path(save_directory, "abundanceSeedlings.rds"))
 
   plot(newDF$roadDistance, newDF$fit, type="l") #tells for each road distance it increasews
   
@@ -210,6 +221,9 @@ cor.test(temp2$seedAbundance, temp2$seedlings22)
 boxplot(temp2$seedlings22~ temp2$roadDistance)
 
 ##finding mean and se of seedlings
+
+standard_error <- function(x) sd(x)/sqrt(length(x))
+
 df.seedlingSummary <- temp2 %>%
   group_by(roadDistance) %>%
   summarise(
@@ -232,7 +246,11 @@ seedlingsRoad <- ggplot(df.seedlingSummary, aes(x=roadDistance, y=seedlings22))+
   ggtitle("Mean Seedling Abundance Along Scrub to Road Gradient")+xlab("Distance from Scrub to Road (m)")+ylab("Mean Number of Seedlings")+
   geom_errorbar( aes(ymin = seedlings22-se, ymax = seedlings22+se), data = df.seedlingSummary, width = 0.2)
 
+save_directory <- "graphs"
+saveRDS(object = seedlingsRoad, file.path(save_directory, "seedlingsRoad.rds"))
+
 ##seedlings road models
+library(lme4)
 seedlingNegBin<- glmer.nb(seedlings22~patchDistance+ roadDistance + I(roadDistance^2) +(1|transectNum), data=temp2)
 
 summary(seedlingNegBin)

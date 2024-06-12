@@ -6,7 +6,7 @@ library(tidyverse)
 library(ggplot2)
 
 # for some reason I am just calling the road data fig 1 data
-fig1Data <- read_csv("C:\\Users\\irisa\\Documents\\Archbold\\Intern Project\\bald1RoadsideRaw.csv")
+fig1Data <- read_csv("cleanData/roadData.csv")
 
 #making unique ids for every bag of sand
 fig1Data$uid <- paste(fig1Data$patchDistance, fig1Data$roadDistance, sep = "_")
@@ -16,8 +16,6 @@ duplicate_rows <- fig1Data[duplicated(fig1Data$uid), ]
 
 # Print the duplicate rows, if any
 print(duplicate_rows)
-#filter out duplicated rows
-fig1Data <- subset(fig1Data, patchDistance!=130)
 
 # create fig2 data frame with only road distance and seed abundance
 
@@ -49,6 +47,9 @@ seedRoadPlot <- ggplot(df.summary, aes(roadDistance, abundanceMass))+
   geom_col(data = df.summary, fill = 'lightgrey', color = "black") +
   geom_errorbar( aes(ymin = abundanceMass-se, ymax = abundanceMass+se), data = df.summary, width = 0.2 )+
   ggtitle("Mean Seed Abundance Along Scrub to Road Gradient")+ xlab("Distance From Scrub to Road (m)")+ylab("Mean Seed Abundance/ Mass of Sand (seeds/gram)")
+
+save_directory <- "graphs"
+saveRDS(object = seedRoadPlot, file.path(save_directory, "seedRoadPlot.rds"))
 
 ggsave("Seed Abundance Scrub to Road", plot=seedRoadPlot, path = "C:\\Users\\irisa\\Documents\\Archbold\\Intern Project", width = 8, height = 6, device='jpg', dpi=600)
 
