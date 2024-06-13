@@ -7,6 +7,7 @@ library(dplyr) #NOTE- some dplyr functions may be masked, fix with dplyr::
 library(car)
 library(readxl)
 library(lme4)
+library(MASS)
 
 demographyData <-read.csv("C:\\Users\\irisa\\Documents\\Archbold\\Intern Project\\ecABSdemog.csv")
 demographyData <- demographyData[demographyData$bald==1,]
@@ -96,12 +97,24 @@ temp2$seedlings22[is.na(temp2$seedlings22)] <-0
 
 library(ggplot2)
 
-#this graph is for seed abundance vs number flowering heads
+#this graph is for seed abundance vs number flowering heads, do flowers predict seeds?
 bestfit<- lm(flwrFig1Data$seedAbundance~flwrFig1Data$heads21)
 flwrAbundance <- ggplot(flwrFig1Data, aes(x=flwrFig1Data$heads21, y=flwrFig1Data$seedAbundance))+
   geom_point()+
   geom_smooth(method = "lm", se=TRUE, color="black", formula = y ~ x) +
   ggtitle("Seed Abundance vs Number of Flowering Heads in 2021")+xlab("Number of Flowering Heads")+ylab("Seed Abundance")
+
+flwrModel <- glm(seedAbundance~heads21+patchDistance+roadDistance, data = flwrFig1Data, family=poisson())
+summary(flwrModel) #second lowest AIC so far
+Anova(flwrModel)
+
+flwrModel3 <- glm(seedAbundance~heads21+patchDistance+roadDistance, data = flwrFig1Data, family=poisson(), offset = log(massFinal)) #adding log offset
+summary(flwrModel3)
+
+#trying it with a negative binomial but it doesn't work, may be colinearity between patchDistance and transectNum
+flwrModel2 <- glmer.nb(seedAbundance ~ heads21 + patchDistance + roadDistance + (1 | uid), data = flwrFig1Data, control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 10000)))
+summary(flwrModel2) #new lowest AIC actually
+
 
 save_directory <- "graphs" #saving graph object
 saveRDS(object = flwrAbundance, file.path(save_directory, "flwrAbundance.rds"))
@@ -125,6 +138,16 @@ bestfit<- glm(seedlings22~poly(seedAbundance,2), data = flwrFig1Data, family=poi
 bestfitNo<- glm(seedlings22~seedAbundance, data = flwrFig1Data, family=poisson())
 bestfitAdded<- glm(seedlings22~poly(seedAbundance,2)+patchDistance+roadDistance, data = flwrFig1Data, family=poisson())
 summary(bestfitAdded)#comopare with or without polynomial, then do anova to choose
+
+#checking dispersion
+dispersion_statistic <- sum(residuals(bestfitAdded, type = "pearson")^2) / bestfitAdded$df.residual
+print(dispersion_statistic)
+
+#fitting neg binomial, does seed abundance predict seedlings?
+bestfitNB <- glm.nb(seedlings22 ~ seedAbundance +poly(seedAbundance, 2) + patchDistance + roadDistance+ offset(log(flwrFig1Data$massFinal)), data = flwrFig1Data)
+
+# Summarize the model
+summary(bestfitNB)
 
 #this creates the confidence intervals
 bestfit_predict <- predict(bestfit, newdata =flwrFig1Data,  type="link", se = T)
