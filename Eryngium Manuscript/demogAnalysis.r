@@ -83,7 +83,9 @@ temp2 <- merge(fig1Data, temp4, by=c("patchDistance", "roadDistance"), all.x = T
 
 #SKIP HERE TO MAKE THE HEADS VS SEED ABUNDANCE FIGURE
 flwrFig1Data <-merge(fig1Data, temp, by=c("patchDistance", "roadDistance"), all.x = TRUE, all.y = FALSE) #merges fig1 data and temp which has eryngium demography data including flowring heads, should I remove NAs in flowering heads?
-
+directory_path <- "dataFrames"
+file_path <- file.path(directory_path, "flwrFig1Data.RData")
+save(flwrFig1Data, file = file_path)
 #check dim, same rows +2 colums, double check NA is never any plant vs 0 there was and it is dead, change NAs to zeros
 ##note there are still NAs in heads but I think they should stay that way
 
@@ -98,10 +100,13 @@ temp2$seedlings22[is.na(temp2$seedlings22)] <-0
 library(ggplot2)
 
 #this graph is for seed abundance vs number flowering heads, do flowers predict seeds?
+#FLWR HEADS START
+load("dataFrames/flwrFig1Data.RData")
+
 bestfit<- lm(flwrFig1Data$seedAbundance~flwrFig1Data$heads21)
 flwrAbundance <- ggplot(flwrFig1Data, aes(x=flwrFig1Data$heads21, y=flwrFig1Data$seedAbundance))+
   geom_point()+
-  geom_smooth(method = "lm", se=TRUE, color="black", formula = y ~ x) +
+  geom_smooth(method = "glm", se=TRUE, color="black", formula = y ~ x) +
   ggtitle("Seed Abundance vs Number of Flowering Heads in 2021")+xlab("Number of Flowering Heads")+ylab("Seed Abundance")
 
 flwrModel <- glm(seedAbundance~heads21+patchDistance+roadDistance, data = flwrFig1Data, family=poisson())
@@ -115,6 +120,50 @@ summary(flwrModel3)
 flwrModel2 <- glmer.nb(seedAbundance ~ heads21 + patchDistance + roadDistance + (1 | uid), data = flwrFig1Data, control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 10000)))
 summary(flwrModel2) #new lowest AIC actually
 
+#omit missing data:
+#get just coloms of interest
+flwrSubset <- flwrFig1Data%>%
+  dplyr::select(heads21, seedAbundance, seedlings22, patchDistance, roadDistance, uid)
+flwrFig1Data_complete <- na.omit(flwrSubset)
+flwrModelComplete <- glmer.nb(seedAbundance ~ heads21 + patchDistance + roadDistance + (1 | uid), 
+                       data = flwrFig1Data_complete, 
+                       control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 10000)))
+
+# Generate predictions
+flwrFig1Data_complete$predicted <- predict(flwrModelComplete, type = "response", re.form = NA)
+flwrFig1Data_complete$se.fit <- predict(flwrModelComplete, type = "link", se.fit = TRUE, re.form = NA)$se.fit
+
+# Calculate confidence intervals
+flwrFig1Data_complete$ci.lower <- exp(predict(flwrModelComplete, type = "link", re.form = NA) - 1.96 * flwrFig1Data_complete$se.fit)
+flwrFig1Data_complete$ci.upper <- exp(predict(flwrModelComplete, type = "link", re.form = NA) + 1.96 * flwrFig1Data_complete$se.fit)
+
+# Plot the data with the model predictions and confidence intervals
+flwrAbundancePredicted <- ggplot(flwrFig1Data_complete, aes(x = heads21, y = seedAbundance)) +
+  geom_point() +
+  geom_line(aes(y = predicted), color = "blue") +
+  geom_ribbon(aes(ymin = ci.lower, ymax = ci.upper), alpha = 0.2, fill = "blue") +
+  ggtitle("Seed Abundance vs Number of Flowering Heads in 2021") +
+  xlab("Number of Flowering Heads") +
+  ylab("Seed Abundance")
+
+#merging to plot predicted data on top of real data
+# Merge the predictions with the original dataset
+flwrFig1Data <- flwrFig1Data %>%
+  left_join(flwrFig1Data_complete %>%
+              dplyr::select(uid, predicted, se.fit, ci.lower, ci.upper), by = "uid")
+
+# Plot the original data with the model predictions and confidence intervals
+flwrAbundanceMerged <- ggplot(flwrFig1Data, aes(x = heads21, y = seedAbundance)) +
+  geom_point() +
+  geom_line(aes(y = predicted.y), color = "blue", na.rm = TRUE) +
+  geom_ribbon(aes(ymin = ci.lower.y, ymax = ci.upper.y), alpha = 0.2, fill = "blue", na.rm = TRUE) +
+  ggtitle("Seed Abundance vs Number of Flowering Heads in 2021") +
+  xlab("Number of Flowering Heads") +
+  ylab("Seed Abundance")+
+  ylim(0,50)+
+  xlim(0,150) #this just excludes the weird outlier 
+
+print(flwrAbundanceMerged)
 
 save_directory <- "graphs" #saving graph object
 saveRDS(object = flwrAbundance, file.path(save_directory, "flwrAbundance.rds"))
