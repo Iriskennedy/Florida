@@ -75,6 +75,8 @@ roadDataSubset <- fig1Data%>%
 combinedData <- rbind(roadDataSubset, scrubDataSubset)
 combinedData$habitat <- factor(combinedData$habitat)
 
+# save(combinedData, file="dataFrames/combinedData.RData")
+
 ## create the linear mixed effects model
 ##try as glmer poisson
 scrubRoadModel <- glmer(seedAbundance~habitat + (1|site), data=combinedData, family = poisson, offset = log(massFinal))
@@ -93,10 +95,13 @@ summary(modelPoisson)
 
 #use negative binomial model to deal with underdispersion
 
-glmeNegBinomial<- glmer.nb(seedAbundance~habitat + (1|site), data=combinedData, control = control_params) #lowest AIC, but may be too low- multicolinearity
-model_nb <- glmer.nb(seedAbundance ~ habitat + (1 |bald/site), data = combinedData, offset = log(massFinal), control = control_params)
-summary(model_nb)
-Anova(model_nb)
+glmeNegBinomial<- glmer.nb(seedAbundance~habitat + (1|site), data=combinedData, control = control_params) #lowest AIC, but may be too low- multicolinearity?
+model_nb <- glmer.nb(seedAbundance ~ habitat + (1 |bald/site), data = combinedData, offset = log(massFinal), control = control_params) #this model is singlular
+isSingular(model_nb)
+isSingular(glmeNegBinomial)
+
+summary(glmeNegBinomial)
+Anova(glmeNegBinomial)
 #checking dispersion: (actually I don't think you do this for negative binomial)
 # Extract fitted values from the model
 fitted_values <- fitted(model_nb)

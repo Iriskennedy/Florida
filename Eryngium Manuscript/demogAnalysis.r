@@ -109,6 +109,10 @@ flwrAbundance <- ggplot(flwrFig1Data, aes(x=flwrFig1Data$heads21, y=flwrFig1Data
   geom_smooth(method = "glm", se=TRUE, color="black", formula = y ~ x) +
   ggtitle("Seed Abundance vs Number of Flowering Heads in 2021")+xlab("Number of Flowering Heads")+ylab("Seed Abundance")
 
+#simple model
+flwrModel <- glm(seedAbundance~heads21, data = flwrFig1Data, family=poisson())
+summary(flwrModel)# heads significant
+
 flwrModel <- glm(seedAbundance~heads21+patchDistance+roadDistance, data = flwrFig1Data, family=poisson())
 summary(flwrModel) #second lowest AIC so far
 Anova(flwrModel)
@@ -117,17 +121,27 @@ flwrModel3 <- glm(seedAbundance~heads21+patchDistance+roadDistance, data = flwrF
 summary(flwrModel3)
 
 #trying it with a negative binomial but it doesn't work, may be colinearity between patchDistance and transectNum
+#simple version
+flwrModel2 <- glmer.nb(seedAbundance ~ heads21+ (1 | uid), data = flwrFig1Data , control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 10000)))
+summary(flwrModel2)
+
 flwrModel2 <- glmer.nb(seedAbundance ~ heads21 + patchDistance + roadDistance + (1 | uid), data = flwrFig1Data, control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 10000)))
 summary(flwrModel2) #new lowest AIC actually
+Anova(flwrModel2)
 
 #omit missing data:
 #get just coloms of interest
 flwrSubset <- flwrFig1Data%>%
   dplyr::select(heads21, seedAbundance, seedlings22, patchDistance, roadDistance, uid)
 flwrFig1Data_complete <- na.omit(flwrSubset)
-flwrModelComplete <- glmer.nb(seedAbundance ~ heads21 + patchDistance + roadDistance + (1 | uid), 
-                       data = flwrFig1Data_complete, 
-                       control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 10000)))
+# flwrModelComplete <- glmer.nb(seedAbundance ~ heads21 + patchDistance + roadDistance + (1 | uid), 
+#                        data = flwrFig1Data_complete, 
+#                        control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 10000)))
+
+#predict with a simple model so it looks smooth
+flwrModelComplete <- glmer.nb(seedAbundance ~ heads21 +(1 | uid), 
+                              data = flwrFig1Data_complete, 
+                              control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 10000)))
 
 # Generate predictions
 flwrFig1Data_complete$predicted <- predict(flwrModelComplete, type = "response", re.form = NA)
@@ -155,8 +169,8 @@ flwrFig1Data <- flwrFig1Data %>%
 # Plot the original data with the model predictions and confidence intervals
 flwrAbundanceMerged <- ggplot(flwrFig1Data, aes(x = heads21, y = seedAbundance)) +
   geom_point() +
-  geom_line(aes(y = predicted.y), color = "blue", na.rm = TRUE) +
-  geom_ribbon(aes(ymin = ci.lower.y, ymax = ci.upper.y), alpha = 0.2, fill = "blue", na.rm = TRUE) +
+  geom_line(aes(y = predicted), color = "black", na.rm = TRUE) +
+  geom_ribbon(aes(ymin = ci.lower, ymax = ci.upper), alpha = 0.2, fill = "grey40", na.rm = TRUE) +
   ggtitle("Seed Abundance vs Number of Flowering Heads in 2021") +
   xlab("Number of Flowering Heads") +
   ylab("Seed Abundance")+
@@ -166,7 +180,7 @@ flwrAbundanceMerged <- ggplot(flwrFig1Data, aes(x = heads21, y = seedAbundance))
 print(flwrAbundanceMerged)
 
 save_directory <- "graphs" #saving graph object
-saveRDS(object = flwrAbundance, file.path(save_directory, "flwrAbundance.rds"))
+saveRDS(object = flwrAbundanceMerged, file.path(save_directory, "flwrAbundance.rds"))
 
 ##doing this for all alive plants
 bestfitAlive<- lm(temp2$seedAbundance~temp2$alive22)
@@ -193,10 +207,34 @@ dispersion_statistic <- sum(residuals(bestfitAdded, type = "pearson")^2) / bestf
 print(dispersion_statistic)
 
 #fitting neg binomial, does seed abundance predict seedlings?
-bestfitNB <- glm.nb(seedlings22 ~ seedAbundance +poly(seedAbundance, 2) + patchDistance + roadDistance+ offset(log(flwrFig1Data$massFinal)), data = flwrFig1Data)
+bestfitNB <- glm.nb(seedlings22 ~  patchDistance+ poly(seedAbundance, 2) + + roadDistance+ offset(log(flwrFig1Data$massFinal)), data = flwrFig1Data)
+
+#running it as a mixed model takes sampling into account
+glmeNegBinomialSeedlings<- glmer.nb(seedlings22~patchDistance+ roadDistance + poly(roadDistance,2) + poly(seedAbundance, 1)+ heads21+ (1|transectNum), data = flwrFig1Data)
+
+#just flowering heads
+headSeedlings <-  glmer.nb(seedlings22~ heads21+ (1|transectNum), data = flwrFig1Data)
+#remove transects that don't have anything in them
+#group by transect first
+#then take out any with seedlings =0
+#run models on non-emptys
+flwrFiltered <- flwrFig1Data%>%
+  group_by(patchDistance)%>%
+  filter(seedlings22%in%0)
+
+flwrFiltered <- flwrFig1Data%>%
+  filter(patchDistance<100)
+
+glmeNegBinomialSeedlings<- glmer.nb(seedlings22~patchDistance+ roadDistance + poly(roadDistance,2) + poly(seedAbundance, 1)+ log(heads21+1)+ (1|transectNum), data = flwrFiltered)
+
+#log seedlings in lmer, treats patchDistance as a bigger thing than transect
+lgSeedlings <- lmer(log(seedlings22+1)~ scale(patchDistance) + poly(roadDistance,2) + poly(seedAbundance, 2)+ log(heads21+1)+ (1|transectNum), data = flwrFig1Data)
+
+#can also start with just one predictor and add them in one by one
 
 # Summarize the model
-summary(bestfitNB)
+summary(lgSeedlings)
+Anova(lgSeedlings)
 
 #this creates the confidence intervals
 bestfit_predict <- predict(bestfit, newdata =flwrFig1Data,  type="link", se = T)
@@ -240,14 +278,16 @@ newDF <- expand.grid( roadDistance=seq(1,4, .01))
 newDF$fit <- predict(reducedModel, newdata=newDF,re.form=~0)
 
 ## Create the plot, THIS ONE WORKS- LOOKS BEST WITHOUT ADDITIVE, maybe just use this for visualizing but for the actual stats include the added patchDistance etc terms bc lower AIC
+
+#une 24, turning off the line of best fit because there is no correlation
 abundanceSeedlings <- ggplot(flwrFig1Data, aes(x = seedAbundance, y = seedlings22)) +
   geom_point() +
  # geom_smooth(method = "glm", se = FALSE, color = "black", formula = y ~ x) +
-  geom_line(aes(y = fit), color = "black") +  # Fitted values from bestfit
-  geom_ribbon(aes(ymin = fit - 1.96 * bestfit_predict$se.fit, ymax = fit + 1.96 * bestfit_predict$se.fit), 
-              alpha = 0.2, fill = "grey50") +  # 95% confidence interval
-  #geom_line(aes(y = fitAdded), color = "red") +  # Fitted values from bestfitAdded
-  #geom_line(aes(y=newDF$fit)) #fix this
+#  geom_line(aes(y = fit), color = "black") +  # Fitted values from bestfit
+# geom_ribbon(aes(ymin = fit - 1.96 * bestfit_predict$se.fit, ymax = fit + 1.96 * bestfit_predict$se.fit), 
+  #            alpha = 0.2, fill = "grey50") +  # 95% confidence interval
+ # #geom_line(aes(y = fitAdded), color = "red") +  # Fitted values from bestfitAdded
+ # #geom_line(aes(y=newDF$fit)) #fix this
   ggtitle("Seed Abundance vs Number of Seedlings in 2022") +
   xlab("Number of Seeds") + ylab("Seedlings")
 
