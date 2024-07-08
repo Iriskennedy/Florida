@@ -84,7 +84,7 @@ summary(scrubRoadModel)
 
 #trying as negative binomial
 control_params <- glmerControl(optimizer = "bobyqa", 
-                               optCtrl = list(maxfun = 50000))
+                               optCtrl = list(maxfun = 500000))
 ## log offset poisson model, lower BIC than doing it with neg bin
 modelPoisson<- glmer(seedAbundance~habitat +(1|site), data=combinedData, offset = log(massFinal), family= poisson)
 summary(modelPoisson)
@@ -95,13 +95,14 @@ summary(modelPoisson)
 
 #use negative binomial model to deal with underdispersion
 
-glmeNegBinomial<- glmer.nb(seedAbundance~habitat + (1|site), data=combinedData, control = control_params) #lowest AIC, but may be too low- multicolinearity?
+glmeNegBinomial<- glmer.nb(seedAbundance~habitat + (1|site), data=combinedData, control = control_params) #lowest AIC, but may be too low- multicolinearity? BEST MODEL
 model_nb <- glmer.nb(seedAbundance ~ habitat + (1 |bald/site), data = combinedData, offset = log(massFinal), control = control_params) #this model is singlular
 isSingular(model_nb)
 isSingular(glmeNegBinomial)
 
 summary(glmeNegBinomial)
-Anova(glmeNegBinomial)
+mAnova <- Anova(glmeNegBinomial)
+mAnova$`Pr(>Chisq)`
 #checking dispersion: (actually I don't think you do this for negative binomial)
 # Extract fitted values from the model
 fitted_values <- fitted(model_nb)
