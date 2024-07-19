@@ -1,4 +1,5 @@
 ##trying to do a paired t test for scrub interior
+#testing rosemary near far
 #started on 5/22/2024
 
 library(tidyverse)
@@ -8,7 +9,7 @@ scrubData <- read_csv("rosemaryBaldsCombined.csv")
 scrubData<- subset(scrubData, bald != 45) #taking out bald 45 because there were no seeds found
 
 scrubSub <- scrubData%>%
-  select(transectNum, nearFar, seedAbundance)%>%
+ dplyr:: select(transectNum, nearFar, seedAbundance)%>%
   mutate(transectNum= as.factor(transectNum),
          nearFar=as.factor(nearFar))
 
@@ -27,3 +28,20 @@ d <- with(my_data,
           weight[group == "before"] - weight[group == "after"])
 # Shapiro-Wilk normality test for the differences
 shapiro.test(d) # => p-value = 0.6141
+
+#making model
+
+nearFarLinear <- lmer(seedAbundance ~ nearFar + (1|bald), data =scrubData )
+summary(nearFarLinear)
+
+mearFarNegBin <- glmer.nb(seedAbundance ~ nearFar + (1|bald), data =scrubData) #singular without the log offset
+
+control <- glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e6))
+
+nearFarModel <- glmer.nb(seedAbundance ~ nearFar + (1 | bald), offset = log(massActual), 
+                         data = scrubData, control = control, verbose = FALSE)
+test<- Anova(nearFarModel)
+test$`Pr(>Chisq)`
+summary(nearFarModel)
+
+lmer(seedAbundance ~ RosemaryNearFar+(1|bald), data=scrubData)

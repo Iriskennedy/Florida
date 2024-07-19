@@ -10,6 +10,8 @@ load("cleanData/germinationData.csv")
 load("dataFrames/combinedData.RData")
 load("dataFrames/flwrFig1Data.RData")
 fig1Data <- read_csv("cleanData/roadData.csv")
+scrubData <- read_csv("rosemaryBaldsCombined.csv")
+scrubData<- subset(scrubData, bald != 45)
 
 fig1Data$roadDistanceSq <- (fig1Data$roadDistance)*(fig1Data$roadDistance)
 
