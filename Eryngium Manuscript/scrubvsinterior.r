@@ -8,6 +8,7 @@ library(ggpubr) #for normality tests
 library(lme4)
 library(car)
 library(MASS)#this masks dplyr
+library(emmeans)
 #1 load data rosemary: intData bald 1 roadside:roadData
 # road: fig1Data
 # interior: scrubData
@@ -52,6 +53,7 @@ roadMeanSeed <- mean(fig1Data$abundanceMass)
 standard_error <- function(x) sd(x)/sqrt(length(x))
 
 seScrub <- standard_error(scrubData$abundanceMass)
+seScrubMean <- standard_error(mean(scrubData$abundanceMass))
 seRoad <- standard_error(fig1Data$abundanceMass)
 
 comparison<- data.frame(location=c("Scrub", "Road"), MeanSeeds=c(scrubMeanSeed, roadMeanSeed), standardError= c(seScrub, seRoad))
@@ -100,9 +102,38 @@ model_nb <- glmer.nb(seedAbundance ~ habitat + (1 |bald/site), data = combinedDa
 isSingular(model_nb)
 isSingular(glmeNegBinomial)
 
+
 summary(glmeNegBinomial)
 mAnova <- Anova(glmeNegBinomial)
 mAnova$`Pr(>Chisq)`
+
+#doing emmeans
+# Obtain estimated marginal means (EMMs) on the response scale
+em_means <- emmeans(glmeNegBinomial, ~ habitat, type = "response")
+# Extract back-transformed means and their standard errors
+summary_em_means <- summary(em_means, infer = c(TRUE, TRUE)) #infer includes conifidence and p values
+backtransformed_means <- summary_em_means$response #0.33916084 0.03283379
+standard_errors <- summary_em_means$SE
+
+#recreate plot with emmeans
+# Create a data frame for plotting
+levels_order <- summary_em_means$habitat
+
+comparison <- data.frame(
+  location = levels_order,
+  MeanSeeds = backtransformed_means,
+  standardError = standard_errors
+)
+
+# Create the plot
+comparisonPlot <- ggplot(comparison, aes(x = location, y = MeanSeeds)) +
+  geom_col() +
+  ggtitle("Mean Seed Abundance for Roadside and Scrub Interior") +
+  xlab("Location") +
+  ylab("Mean Seed Abundance/Mass (seed/gram)") +
+  geom_errorbar(aes(ymin = MeanSeeds - standardError, ymax = MeanSeeds + standardError), width = 0.2) +
+  theme(text = element_text(size = 16))
+
 #checking dispersion: (actually I don't think you do this for negative binomial)
 # Extract fitted values from the model
 fitted_values <- fitted(model_nb)

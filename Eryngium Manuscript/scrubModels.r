@@ -6,6 +6,7 @@ library(lme4)
 library(tidyverse)
 library(dplyr)
 library(car)
+library(MASS)
 
 scrubData <- read.csv("C:\\Users\\irisa\\Documents\\Archbold\\Intern Project\\rosemaryBaldsPresentAbsent.csv")
 
@@ -17,10 +18,20 @@ Anova(glmePresentAbsent)
 
 # analysis of near/far from rosemary
 scrubData$nearFar <- factor(scrubData$nearFar, levels = c("N", "F"))
-scrubData$seedAbundance_adjusted <- scrubData$seedAbundance + 0.0001
+scrubData$seedAbundance_adjusted <- scrubData$seedAbundance + 1
+control_params <- glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
 
-nearFarModel <- glmer.nb(seedAbundance~nearFar+(1|bald), offset=log(massActual), data=scrubData, verbose=TRUE)
+nearFarModel <- glmer.nb(seedAbundance~as.numeric(nearFar)+(1|bald), offset=log(massActual), data=scrubData, verbose=TRUE, control= control_params)
 summary(nearFarModel)
+isSingular(nearFarModel)
+
+#adjusted
+nearFarModelAdjusted <- glmer.nb(seedAbundance_adjusted~nearFar+(1|bald), offset=log(massActual), data=scrubData, verbose=FALSE)
+summary(nearFarModelAdjusted)
+
+#simple model
+simpleModel <- glm.nb(seedAbundance ~ nearFar, data = scrubData)
+summary(simpleModel)
 
 #I think the warning is because there is just not enough data, I'm gonna cut this figure
 

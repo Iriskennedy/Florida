@@ -19,8 +19,9 @@ fig1Data$roadDistanceSq <- (fig1Data$roadDistance)*(fig1Data$roadDistance)
 
 #Road Model:
 # glmeNegBinomial<- glmer.nb(seedAbundance~patchDistance+ roadDistance + poly(roadDistance,2) +(1|transectNum), data=fig1Data)
-
-glmeNegBinomial<- glmer.nb(seedAbundance~patchDistance+ roadDistance + roadDistanceSq +(1|transectNum), data=fig1Data) #altered polynomial tern so it wouldn't give NAs in summary
+# 
+# glmeNegBinomial<- glmer.nb(seedAbundance~patchDistance+ roadDistance + roadDistanceSq +(1|transectNum), data=fig1Data) #altered polynomial tern so it wouldn't give NAs in summary
+glmeNegBinomial <- glmer.nb(seedAbundance~ roadDistance + patchDistance + +meanElevation_scaled+poly(roadDistance,2)+(1|transectNum), data=flwrFig1Data[flwrFig1Data$patchDistance<=120,])
 
 #Scrub v Road model
 control_params <- glmerControl(optimizer = "bobyqa", 
@@ -37,9 +38,10 @@ nearFarModel <- glmer.nb(seedAbundance ~ nearFar + (1 | bald), offset = log(mass
                          data = scrubData, control = control, verbose = FALSE)
 
 #flowering heads and seeds
-
+flwrElevationTest <- glmer.nb(seedAbundance ~ heads21_scaled + patchDistance_scaled + meanElevation_scaled+ roadDistance_scaled + (1 | transectNum), data = flwrFig1Data[flwrFig1Data$patchDistance<=130,], control = controls)
 
 #seeds and seedlings
+
 
 #table making function:
 extract_model_info <- function(model, model_name, test_statistic_type) {

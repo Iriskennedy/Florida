@@ -23,6 +23,7 @@ elevationData$patchDistance <- as.numeric(elevationData$patchDistance)
 flwrFig1Data <- merge(flwrFig1Data, elevationData, by.x = "patchDistance", by.y = "patchDistance", all.x = TRUE)
 flwrElevationTest <- glmer.nb(seedAbundance~heads21*meanElevation + heads21*roadDistance+(1|transectNum), data=mergedData)
 
+save(flwrFig1Data, file = "cleanData/flwrFig1Data.RData")
 
 flwrElevation <- glmer.nb(seedAbundance~heads21*patchDistance + heads21*roadDistance+(1|transectNum), data=flwrFig1Data)
 
@@ -48,7 +49,7 @@ m2<-  glmer.nb(seedAbundance ~ heads21_scaled+ meanElevation_scaled+ roadDistanc
 
 summary(m2)
 Anova(m2)
-
+#AIC 372
 m3<- glmer.nb(seedAbundance ~ heads21_scaled+(1 | transectNum), data = flwrFig1Data[flwrFig1Data$transectNum<=30,], control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 1000000)))
 
 summary(m3)
@@ -57,7 +58,7 @@ Anova(m3)
 m4<- glmer.nb(seedAbundance ~ heads21+(1 | transectNum), data = flwrFig1Data[flwrFig1Data$transectNum<=30,], control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 1000000)))
 
 ## heads model with everything
-
+#AIC 340
 flwrElevationTest <- glmer.nb(seedAbundance ~ heads21_scaled + patchDistance_scaled + meanElevation_scaled+ roadDistance_scaled + (1 | transectNum), 
                               data = flwrFig1Data[flwrFig1Data$patchDistance<=130,], control = controls)
 
@@ -71,9 +72,14 @@ summary(flwrElevationTest)
 #seedlings and seeds
 lgSeedlings <- lmer(log(seedlings22+1)~ scale(patchDistance) + poly(roadDistance,2) + poly(seedAbundance, 2)+ log(heads21+1)+ (1|transectNum), data = flwrFig1Data)
 
-seedlingsTest <- glmer.nb(seedlings22~ seedAbundance + roadDistance+(1|transectNum), data=flwrFig1Data[flwrFig1Data$patchDistance<=150,], control=controls)
-summary(seedlingsTest)
+seedlingsTest <- glmer.nb(seedlings22~ seedAbundance + roadDistance+ patchDistance_scaled+(1|transectNum), data=flwrFig1Data[flwrFig1Data$patchDistance<=150,], control=controls)
+summary(seedlingsTest) #AIC 311.6 without patch distance scaled, 312 with patch distance
 
+#SIMPLE
+seedlingsSimple <- glmer.nb(seedlings22~ seedAbundance +(1|transectNum), data=flwrFig1Data[flwrFig1Data$patchDistance<=150,], control=controls)
+summary(seedlingsSimple) #AIC 310.6
+
+#seedlings patchDistance
 
 m5 <- lmer(log(seedlings22+1)~ scale(patchDistance) + poly(roadDistance,2) + poly(seedAbundance, 2)+ log(heads21+1)+ (1|transectNum), data = flwrFig1Data)
 
