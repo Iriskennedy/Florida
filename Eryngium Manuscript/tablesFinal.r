@@ -13,6 +13,11 @@ fig1Data <- read_csv("cleanData/roadData.csv")
 scrubData <- read_csv("rosemaryBaldsCombined.csv")
 scrubData<- subset(scrubData, bald != 45)
 
+flwrFig1Data$heads21_scaled <- scale(flwrFig1Data$heads21)
+flwrFig1Data$patchDistance_scaled <- scale(flwrFig1Data$patchDistance)
+flwrFig1Data$roadDistance_scaled <- scale(flwrFig1Data$roadDistance)
+flwrFig1Data$meanElevation_scaled <- scale(flwrFig1Data$meanElevation)
+
 fig1Data$roadDistanceSq <- (fig1Data$roadDistance)*(fig1Data$roadDistance)
 
 #MODELS:

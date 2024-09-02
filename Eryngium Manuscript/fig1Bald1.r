@@ -9,9 +9,13 @@ fig1Data <- read_csv("cleanData/roadData.csv")
 
 roadsideOverviewPlot <- ggplot(data=fig1Data)+
   geom_point(mapping=aes(x=patchDistance, y=roadDistance, size=seedAbundance))+
-  ggtitle("Seed Abundance Along 180 meters of Roadside")+ xlab("Distance Along the Road (m)")+ylab("Distance From Back Line of Scrub (m)")
+  ggtitle("Seed Abundance Along 180 meters of Roadside")+ 
+  xlab("Distance Along the Road (m)")+
+  ylab("Distance From Back Line of Scrub (m)")+
+  scale_size_continuous(name = "Seed Abundance")  # Change the legend title
 
 save_directory <- "graphs"
+save_directory <- "finalFigures"
 saveRDS(object = roadsideOverviewPlot, file.path(save_directory, "roadsideOverviewPlot.rds"))
 
 ggsave("Roadside Overview", plot=roadsideOverviewPlot, path = "C:\\Users\\irisa\\Documents\\Archbold\\Intern Project", width = 8, height = 6, device='jpg', dpi=600)

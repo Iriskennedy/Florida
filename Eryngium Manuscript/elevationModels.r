@@ -21,9 +21,10 @@ load("dataFrames/flwrFig1Data.RData")
 #merging in elevation data
 elevationData$patchDistance <- as.numeric(elevationData$patchDistance)
 flwrFig1Data <- merge(flwrFig1Data, elevationData, by.x = "patchDistance", by.y = "patchDistance", all.x = TRUE)
-flwrElevationTest <- glmer.nb(seedAbundance~heads21*meanElevation + heads21*roadDistance+(1|transectNum), data=mergedData)
+flwrElevationTest <- glmer.nb(seedAbundance~heads21*meanElevation + heads21*roadDistance+(1|transectNum), data=save_directory <- "graphs")
 
 save(flwrFig1Data, file = "cleanData/flwrFig1Data.RData")
+save(flwrFig1Data, file = "dataFrames/flwrFig1Data.RData")
 
 flwrElevation <- glmer.nb(seedAbundance~heads21*patchDistance + heads21*roadDistance+(1|transectNum), data=flwrFig1Data)
 
