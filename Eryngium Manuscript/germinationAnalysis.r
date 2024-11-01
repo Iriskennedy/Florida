@@ -48,7 +48,7 @@ summary(model)
 Anova(model)
 
 m2<- glmer(cbind(total.germ, seeds - total.germ) ~ habitat + (1 | site), 
-           family = binomial, data = germinationData)
+           family = binomial, data = germinationData) #singular
 summary(m2)
 Anova(m2)
 #no significant difference between road and scrub seeds

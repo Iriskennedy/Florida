@@ -5,14 +5,25 @@ library(tidyverse)
 # fig1Data <- read.csv("C:\\Users\\irisa\\Documents\\Archbold\\Intern Project\\bald1RoadsideRaw.csv")
 fig1Data <- read_csv("cleanData/roadData.csv")
 
+#just for this scatterplot I only want to plot seed Abundance greater than 1
+subsetRoad <- fig1Data%>%
+  filter(seedAbundance>=1)
+
 #make FIGURE 1 scatterplot
 
-roadsideOverviewPlot <- ggplot(data=fig1Data)+
-  geom_point(mapping=aes(x=patchDistance, y=roadDistance, size=seedAbundance))+
-  ggtitle("Seed Abundance Along 180 meters of Roadside")+ 
-  xlab("Distance Along the Road (m)")+
-  ylab("Distance From Back Line of Scrub (m)")+
-  scale_size_continuous(name = "Seed Abundance")  # Change the legend title
+roadsideOverviewPlot <- ggplot(data = subsetRoad) +
+  geom_point(mapping = aes(
+    x = patchDistance,
+    y = roadDistance,
+    size = seedAbundance,
+    color = factor(ifelse(seedAbundance == 0, "white", "black"))
+  )) +
+  ggtitle("Seed Abundance Along 180 meters of Roadside") + 
+  xlab("Distance Along the Road (m)") +
+  ylab("Distance From Back Line of Scrub (m)") +
+  scale_size_continuous(name = "Seed Abundance",  breaks = c(1, 10, 20, 30, 40)) +  # Legend for size
+  scale_color_manual(values = c("white" = "white", "black" = "black"), guide = "none")  # Manual color assignment
+
 
 save_directory <- "graphs"
 save_directory <- "finalFigures"

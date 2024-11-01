@@ -3,6 +3,7 @@
 library(tidyverse)
 library(lme4)
 library(car)
+library(MASS)
 
 #load data frames for models
 # germinationData <- read_csv("~/Documents/GitHub/Florida/Eryngium Manuscript/cleanData/germinationData.csv")
@@ -38,15 +39,18 @@ germinationModel <- glm(formula = cbind(total.germ, seeds-total.germ)~habitat, f
 
 #Rosemary model (just scrub)
 control <- glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e6))
-
-nearFarModel <- glmer.nb(seedAbundance ~ nearFar + (1 | bald), offset = log(massActual), 
-                         data = scrubData, control = control, verbose = FALSE)
+scrubData$nearFar <- factor(scrubData$nearFar, levels = c("N", "F"))
+scrubData$seedAbundance_adjusted <- scrubData$seedAbundance + 1
+# nearFarModel <- glmer.nb(seedAbundance ~ nearFar + (1 | bald), offset = log(massActual), 
+#                          data = scrubData, control = control, verbose = FALSE)
+nearFarModelAdjusted <- glmer.nb(seedAbundance_adjusted~nearFar+(1|bald), offset=log(massActual), data=scrubData, verbose=FALSE)
 
 #flowering heads and seeds
+controls <- glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 10e6))
 flwrElevationTest <- glmer.nb(seedAbundance ~ heads21_scaled + patchDistance_scaled + meanElevation_scaled+ roadDistance_scaled + (1 | transectNum), data = flwrFig1Data[flwrFig1Data$patchDistance<=130,], control = controls)
 
 #seeds and seedlings
-
+seedlingsTest <- glmer.nb(seedlings22~ seedAbundance + roadDistance+(1|transectNum), data=flwrFig1Data[flwrFig1Data$patchDistance<=150,], control=controls)
 
 #table making function:
 extract_model_info <- function(model, model_name, test_statistic_type) {
@@ -81,7 +85,7 @@ extract_model_info <- function(model, model_name, test_statistic_type) {
   # Adjust the variable names in anova_info to match the model_info
   #add new lines here for every model with every variable name possible in that model
   anova_info$variable <- ifelse(anova_info$variable == "habitat", "habitatscrub", anova_info$variable)
-  anova_info$variable <- ifelse(anova_info$variable == "nearFar", "nearFarN", anova_info$variable)
+  anova_info$variable <- ifelse(anova_info$variable == "nearFar", "nearFarF", anova_info$variable)
   
   # Merge both data frames on the variable name
   final_info <- left_join(model_info, anova_info, by = "variable")
@@ -104,13 +108,13 @@ extract_model_info <- function(model, model_name, test_statistic_type) {
 }
 
 # Fit the models
-glmeNegBinomial <- glmer.nb(seedAbundance ~ patchDistance + roadDistance + roadDistanceSq + (1|transectNum), data = fig1Data)
-scrubVsRoad <- glmer.nb(seedAbundance ~ habitat + (1|site), data = combinedData, control = glmerControl(optimizer = "bobyqa"))
+# glmeNegBinomial <- glmer.nb(seedAbundance ~ patchDistance + roadDistance + roadDistanceSq + (1|transectNum), data = fig1Data)
+# scrubVsRoad <- glmer.nb(seedAbundance ~ habitat + (1|site), data = combinedData, control = glmerControl(optimizer = "bobyqa"))
 
 # Extract information for both models with manually specified test statistic type
 model_road_info <- extract_model_info(glmeNegBinomial, model_name = "Roadside", test_statistic_type = "Type II Wald chisquare tests")
 model_scrub_info <- extract_model_info(scrubVsRoad, model_name = "Scrub vs Road", test_statistic_type = "Type II Wald chisquare tests")
-model_near_far_info <- extract_model_info(nearFarModel, model_name = "Near vs Far", test_statistic_type = "Type II Wald chisquare tests")
+model_near_far_info <- extract_model_info(nearFarModelAdjusted, model_name = "Near vs Far", test_statistic_type = "Type II Wald chisquare tests")
 
 
 # Combine both model information into a final table
