@@ -1,0 +1,22 @@
+"variable","estimate_se","test_statistic_z","p_value_anova","test_statistic_type"
+"Roadside Model",NA,NA,NA,NA
+"(Intercept)","3.763 ± 0.798",4.7183735,2.38e-06,"Type II Wald chisquare tests"
+"roadDistance","-0.381 ± 0.135",-2.8159265,0.00486,"Type II Wald chisquare tests"
+"patchDistance","-0.039 ± 0.011",-3.6045247,0.000313,"Type II Wald chisquare tests"
+"meanElevation_scaled","1.009 ± 0.342",2.9481464,0.0032,"Type II Wald chisquare tests"
+"poly(roadDistance, 2)2","-3.255 ± 1.368",-2.3788564,0.0173664,"Type II Wald chisquare tests"
+"Scrub vs Road",NA,NA,NA,NA
+"(Intercept)","-1.081 ± 0.325",-3.3279617,0.000875,"Type II Wald chisquare tests"
+"habitatscrub","-2.335 ± 0.508",-4.5989394,4.25e-06,"Type II Wald chisquare tests"
+"Near vs Far",NA,NA,NA,NA
+"(Intercept)","-6.17 ± 0.23",-26.7940754,3.79e-158,"Type II Wald chisquare tests"
+"nearFarF","0.076 ± 0.243",0.3114134,0.755,"Type II Wald chisquare tests"
+"Germination",NA,NA,NA,NA
+"(Intercept)","-1.516 ± 0.12",-12.654,NA,NA
+"habitatscrub","0.451 ± 0.386",1.169,0.2573,"Type II Wald chisquare tests"
+"Demographic",NA,NA,NA,NA
+"(Intercept)","-0.205 ± 0.425",-0.482,NA,"Type II Wald chisquare tests"
+"heads21_scaled","0.212 ± 0.147",1.44,0.1499605,"Type II Wald chisquare tests"
+"patchDistance_scaled","-1.901 ± 0.55",-3.455,0.0005509,"Type II Wald chisquare tests"
+"meanElevation_scaled","0.671 ± 0.32",2.095,0.0361895,"Type II Wald chisquare tests"
+"roadDistance_scaled","-0.232 ± 0.194",-1.194,0.2325631,"Type II Wald chisquare tests"
