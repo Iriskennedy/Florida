@@ -46,7 +46,8 @@ df.summary
 seedRoadPlot <- ggplot(df.summary, aes(roadDistance, abundanceMass))+
   geom_col(data = df.summary, fill = 'lightgrey', color = "black") +
   geom_errorbar( aes(ymin = abundanceMass-se, ymax = abundanceMass+se), data = df.summary, width = 0.2 )+
-  ggtitle("Mean Seed Abundance Along Scrub to Road Gradient")+ xlab("Distance From Scrub to Road (m)")+ylab("Mean Seed Abundance/ Mass of Sand (seeds/gram)")
+ # ggtitle("Mean Seed Abundance Along Scrub to Road Gradient")+ 
+  xlab("Distance From Scrub to Road (m)")+ylab("Mean Seed Abundance/ Mass of Sand (seeds/gram)")
 
 save_directory <- "graphs"
 saveRDS(object = seedRoadPlot, file.path(save_directory, "seedRoadPlot.rds"))

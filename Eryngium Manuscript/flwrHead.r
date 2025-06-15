@@ -9,7 +9,7 @@ load("dataFrames/flwrFig1Data.RData")
 library(tidyverse)
 library(lme4)
 library(MASS)
-
+load("~/Documents/GitHub/Florida/Eryngium Manuscript/cleanData/flwrFig1Data.RData")
 # Check for missing values and remove rows with missing values
 flwrSubset <- flwrFig1Data%>%
   filter(heads21<400)%>%
@@ -94,12 +94,18 @@ print(flwrAbundanceMerged)
 
 # Display the plot
 print(flwrAbundanceMerged)
+#taking the outlier of 400 flowering heads out to better see trend
+noOutlier <- subset(flwrFig1Data, heads21 <= 400)
 
-
-flwrAbundance <- ggplot(flwrFig1Data, aes(x=flwrFig1Data$heads21, y=flwrFig1Data$seedAbundance))+
+flwrAbundance <- ggplot(noOutlier, aes(x=noOutlier$heads21, y=noOutlier$seedAbundance))+
   geom_point()+
-  geom_smooth(method = "glm", se=TRUE, color="black", formula = y ~ x) +
-  ggtitle("Seed Abundance vs Number of Flowering Heads in 2021")+xlab("Number of Flowering Heads")+ylab("Seed Abundance")
+#  geom_smooth(method = "glm", se=TRUE, color="black", formula = y ~ x) +
+ # ggtitle("Seed Abundance vs Number of Flowering Heads in 2021")+
+  xlab("Number of Flowering Heads in Previous Year")+ylab("Seed Bank Density (Seed Abundance)")
+
+#saving with removed trendline and no title no outlier:
+save_directory <- "graphs" #saving graph object
+saveRDS(object = flwrAbundance, file.path(save_directory, "flwrAbundance.rds"))
 
 flwrModel <- glm(seedAbundance~heads21+patchDistance+roadDistance, data = flwrFig1Data, family=poisson())
 summary(flwrModel) #second lowest AIC so far

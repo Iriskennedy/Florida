@@ -193,7 +193,9 @@ Save_directory <- "graphs" #saving graph object
 saveRDS(object = abundanceAlive, file.path(save_directory, "abundanceAlive.rds"))
 
 cor.test(temp2$alive22, temp2$seedAbundance)
+cor.test(temp2$alive22, temp2$seedAbundance, method = "spearman")
 #correlation of 0.349945 between living plants and seeds
+#spearman rho .4487, moderate strength positive relationship
 
 ##making graph of seedlings vs seed abundance
 #poly(seedAbundance,2) helps get rid of colinearity issue
@@ -288,8 +290,8 @@ abundanceSeedlings <- ggplot(flwrFig1Data, aes(x = seedAbundance, y = seedlings2
   #            alpha = 0.2, fill = "grey50") +  # 95% confidence interval
  # #geom_line(aes(y = fitAdded), color = "red") +  # Fitted values from bestfitAdded
  # #geom_line(aes(y=newDF$fit)) #fix this
-  ggtitle("Seed Abundance vs Number of Seedlings in 2022") +
-  xlab("Number of Seeds") + ylab("Seedlings")
+  #ggtitle("Seed Abundance vs Number of Seedlings in 2022") +
+  xlab("Seed Bank Density (Seed Abundance)") + ylab("Number of Seedlings")
 
 save_directory <- "graphs"
 saveRDS(object = abundanceSeedlings, file.path(save_directory, "abundanceSeedlings.rds"))

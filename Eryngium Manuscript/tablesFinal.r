@@ -86,6 +86,7 @@ extract_model_info <- function(model, model_name, test_statistic_type) {
   #add new lines here for every model with every variable name possible in that model
   anova_info$variable <- ifelse(anova_info$variable == "habitat", "habitatscrub", anova_info$variable)
   anova_info$variable <- ifelse(anova_info$variable == "nearFar", "nearFarF", anova_info$variable)
+  anova_info$variable <- ifelse(anova_info$variable == "poly(roadDistance, 2)2", anova_info$variable, anova_info$variable)
   
   # Merge both data frames on the variable name
   final_info <- left_join(model_info, anova_info, by = "variable")
