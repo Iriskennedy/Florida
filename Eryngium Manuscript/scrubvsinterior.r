@@ -129,7 +129,7 @@ comparison <- data.frame(
 comparisonPlot <- ggplot(comparison, aes(x = location, y = MeanSeeds)) +
   geom_col() +
   ggtitle("Mean Seed Abundance for Roadside and Scrub Interior") +
-  xlab("Location") +
+  xlab("Habitat") +
   ylab("Mean Seed Abundance/Mass (seed/gram)") +
   geom_errorbar(aes(ymin = MeanSeeds - standardError, ymax = MeanSeeds + standardError), width = 0.2) +
   theme(text = element_text(size = 16))
@@ -146,7 +146,7 @@ dispersion_stat <- var(dev_resid) / mean(fitted_values)
   
 
 ##exporting plot as jpg: 
-
+saveRDS(comparisonPlot, file = "graphs/scrubRoadPlot.rds")
 ggsave("road vs scrub", plot=comparisonPlot, path = "C:\\Users\\irisa\\Documents\\Archbold\\Intern Project", width = 8, height = 6, device='jpg', dpi=600)
   
 # tiff("R:/Aaron David - restricted/USDA/other projects/ABS sequencing/landscape ms/Mycologia/mycologia revision/fig2-dbRDA-varpart.tif",width = 165, height = 56,units = "mm", pointsize = 9,res=600)
